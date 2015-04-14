@@ -8,31 +8,22 @@ module.exports = function(grunt) {
 
   });
 
-  grunt.registerTask("default", "start a web server", function() {//not executed here, only a declaration)
-//grunt tasks run synchronously
+  grunt.registerTask("webServer", "Start a web server", function() {//not executed here, only a declaration)
 
     var
-       http = require("http"),
-       express = require("express"),
-       app = express(),
-       webServerConfig = grunt.config("webServer");
+      webServer = require("./web-server"),
+      webServerConfig = grunt.config("webServer");
+//grunt tasks run synchronously
 
-       /*javascript variables are declared in the beginning for something called hoisting
-       it's becasue javascript has function scope, not block scope*/
+this.async(); //telling grunt to run this asynchronously
 
-    this.async(); //telling grunt to run this asynchronously
+//webServerConfig.port = port || webServerConfig.port;
 
-    app.use(express.static(webServerConfig.rootFolder));
+webServer(webServerConfig, function() {
+  grunt.log.writeln("web server listening on port: " + webServerConfig.port)
+});
+});
 
-    //express makes it easier to configure and use the Node's built in http module
-    http.createServer(app).listen(webServerConfig.port, function()  { //Chain pattern
-      // This is a callback function
-      grunt
-         .log
-         //Non-blocking IO function. javascript is single threaded. "Promises" help us manage asynchronous processes as this one.
-           .writeln("web server listening on port: " + webServerConfig.port);
-    });
-
-  });
+grunt.registerTask("default", ["webServer"]);
 
 };
